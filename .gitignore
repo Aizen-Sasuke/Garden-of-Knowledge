@@ -1,0 +1,11 @@
+build/
+dist/
+nbproject/private/
+.vscode/settings.json
+.vscode/.ropeproject/
+tools/tomcat/
+tools/*.zip
+tools/tomcat/apache-tomcat-10.1.55/logs/
+tools/tomcat/apache-tomcat-10.1.55/temp/
+tools/tomcat/apache-tomcat-10.1.55/work/
+web/WEB-INF/data/
