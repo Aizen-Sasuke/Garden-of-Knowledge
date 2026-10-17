@@ -29,6 +29,13 @@
     ResultSet rs3 = ps3.executeQuery();
     rs3.next();
     int returned = rs3.getInt(1);
+
+    PreparedStatement ps4 = conn.prepareStatement(
+        "SELECT b.id AS borrowing_id, bk.id AS book_id, bk.title, b.borrow_date, b.return_date, bk.digital_file_name " +
+        "FROM borrowings b JOIN books bk ON b.book_id = bk.id " +
+        "WHERE b.member_id = ? ORDER BY b.borrow_date DESC");
+    ps4.setInt(1, userId);
+    ResultSet rs4 = ps4.executeQuery();
 %>
 <!DOCTYPE html>
 <html>
@@ -85,31 +92,37 @@
                         <th>Borrow Date</th>
                         <th>Return Date</th>
                         <th>Status</th>
+                        <th>Digital File</th>
                         <th>Action</th>
                     </tr>
                     <%
-                        PreparedStatement ps = conn.prepareStatement(
-                            "SELECT b.id, bk.title, b.borrow_date, b.return_date " +
-                            "FROM borrowings b JOIN books bk ON b.book_id = bk.id " +
-                            "WHERE b.member_id = ? ORDER BY b.borrow_date DESC");
-                        ps.setInt(1, userId);
-                        ResultSet rs = ps.executeQuery();
-                        while (rs.next()) {
+                        while (rs4.next()) {
+                            boolean hasDigitalFile = rs4.getString("digital_file_name") != null;
                     %>
                     <tr>
-                        <td><%= rs.getString("title") %></td>
-                        <td><%= rs.getDate("borrow_date") %></td>
-                        <td><%= rs.getDate("return_date") != null ? rs.getDate("return_date") : "-" %></td>
+                        <td><%= rs4.getString("title") %></td>
+                        <td><%= rs4.getDate("borrow_date") %></td>
+                        <td><%= rs4.getDate("return_date") != null ? rs4.getDate("return_date") : "-" %></td>
                         <td>
-                            <% if (rs.getDate("return_date") != null) { %>
+                            <% if (rs4.getDate("return_date") != null) { %>
                                 <span class="status-returned">✅ Returned</span>
                             <% } else { %>
                                 <span class="status-active">⏳ Active</span>
                             <% } %>
                         </td>
                         <td>
-                            <% if (rs.getDate("return_date") == null) { %>
-                                <a class="return-btn" href="returnProcess.jsp?borrowingId=<%= rs.getInt("id") %>">Return</a>
+                            <% if (hasDigitalFile) { %>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <a class="return-btn" href="book-file.jsp?id=<%= rs4.getInt("book_id") %>&mode=read" target="_blank" rel="noopener">Read</a>
+                                    <a class="return-btn" href="book-file.jsp?id=<%= rs4.getInt("book_id") %>&mode=download">Download</a>
+                                </div>
+                            <% } else { %>
+                                -
+                            <% } %>
+                        </td>
+                        <td>
+                            <% if (rs4.getDate("return_date") == null) { %>
+                                <a class="return-btn" href="returnProcess.jsp?borrowingId=<%= rs4.getInt("borrowing_id") %>">Return</a>
                             <% } else { %>
                                 -
                             <% } %>

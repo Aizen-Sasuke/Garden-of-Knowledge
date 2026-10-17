@@ -44,6 +44,7 @@
                         String title = rs.getString("title");
                         String author = rs.getString("author");
                         String genre = rs.getString("genre");
+                        String digitalFileName = rs.getString("digital_file_name");
                         int available = rs.getInt("available_copies");
                 %>
                     <div class="book-card glass-card">
@@ -57,9 +58,15 @@
                         <% if ("user".equals(role) && available > 0) { %>
                             <a href="borrow.jsp?bookId=<%= id %>" class="btn-primary">Borrow</a>
                         <% } %>
+                        <% if (digitalFileName != null) { %>
+                            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+                                <a href="book-file.jsp?id=<%= id %>&mode=read" class="btn-secondary" target="_blank" rel="noopener">Read</a>
+                                <a href="book-file.jsp?id=<%= id %>&mode=download" class="btn-primary">Download</a>
+                            </div>
+                        <% } %>
                         <% if ("admin".equals(role)) { %>
                             <a href="editBook.jsp?id=<%= id %>" class="btn-secondary">Edit</a>
-                            <a href="deleteBook.jsp?id=<%= id %>" class="btn-danger" onclick="return confirm('Delete this book?')">Delete</a>
+                            <a href="deleteBookProcess.jsp?id=<%= id %>" class="btn-danger" onclick="return confirm('Delete this book?')">Delete</a>
                         <% } %>
                     </div>
                 <% } %>
